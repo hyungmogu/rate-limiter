@@ -1,6 +1,6 @@
 import os
-import time
 import httpx
+import hashlib
 from flask import Flask, request, jsonify, Response
 from redis import Redis
 
@@ -8,44 +8,31 @@ app = Flask(__name__)
 app.config.from_object('config.Config')
 redis = Redis(app)
 
-# In-memory storage to track requests per ID
-request_counts = {}
-
 # Rate limit configuration
-MAX_REQUESTS_PER_DAY = app.config['MAX_REQUESTS_PER_DAY']
-SECONDS_IN_DAY = app.config['SECONDS_IN_DAY']
+MAX_REQUESTS_PER_DAY = os.environ['API_MAX_REQUESTS_PER_DAY']
+SECONDS_IN_DAY = os.environ['API_SECONDS_IN_DAY']
 
 @app.before_request
 def rate_limiter():
-    current_time = int(time.time())
-
-    # Extract the ID from the request
-    id = request.headers.get('X-Request-ID', None)
-    if id is None:
-        return jsonify({"error": "Missing X-Request-ID header"}), 400
+    hash_object = hashlib.sha256(str.encode(request.remote_addr))
+    hashed_ipv6 = hash_object.hexdigest()
+    print(hashed_ipv6)
+    count = redis.get(hashed_ipv6)
 
     # Initialize request count if ID is not present
-    if id not in request_counts:
-        request_counts[id] = {
-            "count": 0,
-            "reset_time": current_time + SECONDS_IN_DAY
-        }
+    if not count:
+        count = 0
 
     # Check if request count exceeds the limit
-    if request_counts[id]["count"] >= MAX_REQUESTS_PER_DAY:
+    if count >= MAX_REQUESTS_PER_DAY:
         return jsonify({"error": "Rate limit exceeded"}), 429
 
-    # Check if rate limit reset time has passed
-    if current_time > request_counts[id]["reset_time"]:
-        request_counts[id]["count"] = 0
-        request_counts[id]["reset_time"] = current_time + SECONDS_IN_DAY
-
-    request_counts[id]["count"] += 1
+    redis.set(hashed_ipv6, count + 1)
 
 @app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def proxy(path):
-    url = f'http://php-service:80/{path}'
+    url = f'http://img-converter:80/{path}'
     headers = {k: v for k, v in request.headers if k != 'Host'}
 
     try:

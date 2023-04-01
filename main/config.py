@@ -7,5 +7,3 @@ class BaseConfig(object):
     CACHE_REDIS_DB= os.environ['CACHE_REDIS_DB']
     CACHE_REDIS_URL= os.environ['CACHE_REDIS_URL']
     CACHE_REDIS_PASSWORD= os.environ['CACHE_REDIS_PASSWORD']
-    API_MAX_REQUESTS_PER_DAY = os.environ['API_MAX_REQUESTS_PER_DAY']
-    API_SECONDS_IN_DAY = os.environ['API_SECONDS_IN_DAY']
