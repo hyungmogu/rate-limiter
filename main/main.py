@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify, Response
 from redis import Redis
 
 app = Flask(__name__)
-app.config.from_object('config.Config')
+app.config.from_object('config.BaseConfig')
 redis = Redis(app)
 
 # Rate limit configuration
