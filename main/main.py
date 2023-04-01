@@ -5,17 +5,15 @@ from flask import Flask, request, jsonify, Response
 from redis import Redis
 
 app = Flask(__name__)
-app.config['REDIS_HOST'] = os.getenv('REDIS_HOST')
-app.config['REDIS_PORT'] = os.getenv('REDIS_PORT')
-app.config['REDIS_DB'] = os.getenv('REDIS_DB')
+app.config.from_object('config.Config')
 redis = Redis(app)
 
 # In-memory storage to track requests per ID
 request_counts = {}
 
 # Rate limit configuration
-MAX_REQUESTS_PER_DAY = os.getenv('MAX_REQUESTS_PER_DAY')
-SECONDS_IN_DAY = os.getenv('SECONDS_IN_DAY')
+MAX_REQUESTS_PER_DAY = app.config['MAX_REQUESTS_PER_DAY']
+SECONDS_IN_DAY = app.config['SECONDS_IN_DAY']
 
 @app.before_request
 def rate_limiter():
@@ -64,4 +62,4 @@ def proxy(path):
         return jsonify({"error": f"An error occurred while forwarding the request: {e}"}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8089)

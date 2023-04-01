@@ -1,4 +1,5 @@
-# Instruction made from https://geshan.com.np/blog/2022/01/redis-docker/
+# Instruction referenced from https://geshan.com.np/blog/2022/01/redis-docker/
+# and here https://levelup.gitconnected.com/implement-api-caching-with-redis-flask-and-docker-step-by-step-9139636cef24
 version: '2'
 
 services:
@@ -11,12 +12,12 @@ services:
   api:
     build: .
     container_name: rate-limiter-api
-    ports:
-      - '8000:8000'
     env_file:
       - .env
     volumes:
       - './main:/app/main'
     depends_on:
       - cache
+
+
 
