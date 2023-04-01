@@ -18,6 +18,8 @@ services:
       - './main:/app/main'
     depends_on:
       - cache
+    ports:
+      - '8089:8089'
 
 
 
