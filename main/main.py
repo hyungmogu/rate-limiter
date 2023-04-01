@@ -2,10 +2,13 @@ import os
 import time
 import httpx
 from flask import Flask, request, jsonify, Response
-from dotenv import load_dotenv
+from redis import Redis
 
 app = Flask(__name__)
-load_dotenv()
+app.config['REDIS_HOST'] = os.getenv('REDIS_HOST')
+app.config['REDIS_PORT'] = os.getenv('REDIS_PORT')
+app.config['REDIS_DB'] = os.getenv('REDIS_DB')
+redis = Redis(app)
 
 # In-memory storage to track requests per ID
 request_counts = {}

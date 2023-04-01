@@ -12,7 +12,3 @@ RUN pip3 install -r requirements.txt
 
 # Copy all files to WORKDIR
 COPY . .
-
-EXPOSE 8000
-
-CMD ["python", "/app/main/main.py"]

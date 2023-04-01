@@ -4,29 +4,19 @@ version: '2'
 services:
   cache:
     image: redis:7.0.10-alpine
+    container_name: rate-limiter-redis-cache
     restart: always
     ports:
       - '6379:6379' 
-    # password exposed because it's a dev environment
-    command: redis-server --save 20 1 --loglevel warning --requirepass H!9ajcu5&Aksibir@23984_33119aHc
-    volumes:
-      - cache:/data
   api:
     build: .
+    container_name: rate-limiter-api
     ports:
       - '8000:8000'
-    environment:
-      - REDIS_HOST=cache
-      - REDIS_PORT=6379 
-      # password exposed because it's a dev environment
-      - REDIS_PASSWORD=H!9ajcu5&Aksibir@23984_33119aHc
+    env_file:
+      - .env
     volumes:
       - './main:/app/main'
     depends_on:
       - cache
-    links:
-      - cache
-volumes:
-  cache:
-    driver: local
 
