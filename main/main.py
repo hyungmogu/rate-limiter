@@ -7,6 +7,7 @@ from redis import Redis
 app = Flask(__name__)
 app.config.from_object('config.BaseConfig')
 redis = Redis(app)
+redis.ping()
 
 # Rate limit configuration
 MAX_REQUESTS_PER_DAY = os.environ['API_MAX_REQUESTS_PER_DAY']
@@ -17,9 +18,10 @@ def rate_limiter():
     hash_object = hashlib.sha256(str.encode(request.remote_addr))
     hashed_ipv6 = hash_object.hexdigest()
     print(hashed_ipv6)
-    count = redis.get(hashed_ipv6)
 
+    count = redis.get(hashed_ipv6)
     # Initialize request count if ID is not present
+
     if not count:
         count = 0
 
