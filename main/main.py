@@ -1,17 +1,20 @@
+import os
 import time
 import httpx
 from flask import Flask, request, jsonify, Response
-from functools import wraps
+from dotenv import load_dotenv
 
 app = Flask(__name__)
+load_dotenv()
 
 # In-memory storage to track requests per ID
 request_counts = {}
 
 # Rate limit configuration
-MAX_REQUESTS_PER_DAY = 1000
-SECONDS_IN_DAY = 24 * 60 * 60
+MAX_REQUESTS_PER_DAY = os.getenv('MAX_REQUESTS_PER_DAY')
+SECONDS_IN_DAY = os.getenv('SECONDS_IN_DAY')
 
+@app.before_request
 def rate_limiter():
     current_time = int(time.time())
 
@@ -37,8 +40,6 @@ def rate_limiter():
         request_counts[id]["reset_time"] = current_time + SECONDS_IN_DAY
 
     request_counts[id]["count"] += 1
-
-app.before_request(rate_limiter)
 
 @app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
