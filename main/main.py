@@ -22,14 +22,20 @@ def rate_limiter():
     redis_result = redis.get(hashed_ipv6)
     count = 0
 
-    if count:
-        count = int.from_bytes(redis_result)
+    if redis_result:
+        count = int(redis_result.decode())
 
     # Check if request count exceeds the limit
+    app.logger.info('Redis Result: {}'.format(redis_result))
+    app.logger.info('Count: {}'.format(count))
+    app.logger.info('Hashed IPv6: {}'.format(hashed_ipv6))
+    app.logger.info('Redis Count: {}'.format(count))
+    app.logger.info('API_MAX_REQUESTS_PER_DAY: {}'.format(MAX_REQUESTS_PER_DAY))
+
     if count >= MAX_REQUESTS_PER_DAY:
         return jsonify({"error": "Rate limit exceeded"}), 429
 
-    redis.set(hashed_ipv6, count + 1)
+    redis.set(hashed_ipv6, str.encode('{}'.format(count + 1)))
 
 @app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
