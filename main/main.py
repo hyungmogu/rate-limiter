@@ -13,8 +13,7 @@ redis = Redis(
 redis.ping()
 
 # Rate limit configuration
-MAX_REQUESTS_PER_DAY = os.environ['API_MAX_REQUESTS_PER_DAY']
-SECONDS_IN_DAY = os.environ['API_SECONDS_IN_DAY']
+MAX_REQUESTS_PER_DAY = int(os.environ['API_MAX_REQUESTS_PER_DAY'])
 
 @app.before_request
 def rate_limiter():
