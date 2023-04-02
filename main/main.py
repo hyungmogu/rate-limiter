@@ -25,13 +25,15 @@ def rate_limiter():
     if redis_result:
         count = int(redis_result.decode())
 
-    # Check if request count exceeds the limit
+    # ================ DEBUG ==================
     app.logger.info('Redis Result: {}'.format(redis_result))
     app.logger.info('Count: {}'.format(count))
     app.logger.info('Hashed IPv6: {}'.format(hashed_ipv6))
     app.logger.info('Redis Count: {}'.format(count))
     app.logger.info('API_MAX_REQUESTS_PER_DAY: {}'.format(MAX_REQUESTS_PER_DAY))
+    # =========================================
 
+    # Check if request count exceeds the limit
     if count >= MAX_REQUESTS_PER_DAY:
         return jsonify({"error": "Rate limit exceeded"}), 429
 
