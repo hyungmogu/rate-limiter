@@ -5,8 +5,11 @@ from flask import Flask, request, jsonify, Response
 from redis import Redis
 
 app = Flask(__name__)
-app.config.from_object('config.BaseConfig')
-redis = Redis(app)
+redis = Redis(
+    host=os.environ['CACHE_REDIS_HOST'],
+    port=os.environ['CACHE_REDIS_PORT'],
+    password=os.environ['CACHE_REDIS_PASSWORD']
+)
 redis.ping()
 
 # Rate limit configuration
